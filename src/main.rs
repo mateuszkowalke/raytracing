@@ -1,7 +1,10 @@
-use vec3::{color, point3};
-
 pub mod ray;
 pub mod vec3;
+pub mod hittable;
+pub mod hittable_list;
+pub mod sphere;
+
+use vec3::{color, point3};
 
 fn main() {
     // Image
