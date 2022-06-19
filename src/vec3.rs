@@ -71,10 +71,10 @@ impl std::fmt::Display for Vec3 {
     }
 }
 
-pub type point3 = Vec3;
-pub type color = Vec3;
+pub type Point3 = Vec3;
+pub type Color = Vec3;
 
-pub fn print_color(color: &color) {
+pub fn print_color(color: &Color) {
     let ir = (255.999 * color.x()) as i32;
     let ig = (255.999 * color.y()) as i32;
     let ib = (255.999 * color.z()) as i32;

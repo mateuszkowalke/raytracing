@@ -1,45 +1,37 @@
+use crate::vec3::{Vec3, Point3};
+
 use super::hittable::{HitRecord, Hittable};
 use super::ray::Ray;
-use super::vec3::point3;
 use std::vec::Vec;
 
 #[derive(Debug)]
-pub struct HittableList {
-    objects: Vec<Box<dyn Hittable>>
+pub struct HittableList<'a> {
+    objects: Vec<Box<dyn Hittable + 'a>>,
 }
 
-impl HittableList {
-    pub fn new() -> HittableList {
-        HittableList{
+impl<'a> HittableList<'a> {
+    pub fn new() -> HittableList<'a> {
+        HittableList {
             objects: Vec::new(),
         }
     }
+    pub fn add(&mut self, obj: Box<dyn Hittable + 'a>) {
+        self.objects.push(obj);
+    }
 }
 
-impl<'a> Hittable for Sphere<'a> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
-        // TODO
-        // this might be simplified, but left for readability for now
-        let oc = &ray.orig.sub(self.center);
-        let a = ray.dir.dot(ray.dir);
-        let b = 2.0 * ray.dir.dot(oc);
-        let c = oc.dot(oc) - self.radius * self.radius;
-        let d = b * b - 4.0 * a * c;
-        if d < 0.0 {
-            return false;
-        }
-
-        let sqrtd = f64::sqrt(d);
-        let mut nearest_root = (-b - sqrtd) / 2.0 * a;
-        if nearest_root < t_min || nearest_root > t_max {
-            nearest_root = (-b + sqrtd) / 2.0 * a;
-            if nearest_root < t_min || nearest_root > t_max {
-                return false;
+impl<'a> Hittable for HittableList<'a> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        let mut temp_rec = None;
+        let mut hit_anything = false;
+        let mut closest = t_max;
+        self.objects.iter().for_each(|object| {
+            if let Some(rec) = object.hit(ray, t_min, closest) {
+                hit_anything = true;
+                closest = rec.t;
+                temp_rec = Some(rec);
             }
-        }
-        rec.t = nearest_root;
-        rec.p =ray.at(nearest_root);
-        rec.normal = rec.p.sub(self.center).div(self.radius);
-        return true;
+        });
+        temp_rec
     }
 }
