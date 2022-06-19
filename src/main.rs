@@ -6,16 +6,16 @@ pub mod vec3;
 
 use hittable::Hittable;
 use hittable_list::HittableList;
-use sphere::Sphere;
-use vec3::{Color, Point3};
 use ray::Ray;
+use sphere::Sphere;
+use vec3::{Color, Point3, Vec3};
 
 fn main() {
     // Image
 
-    let aspect_ratio = 16.0 / 9.0;
-    let image_width = 400;
-    let image_height = (image_width as f64 / aspect_ratio) as i32;
+    const ASPECT_RATIO: f64 = 16.0 / 9.0;
+    const IMAGE_WIDTH: u64 = 256;
+    const IMAGE_HEIGHT: u64 = ((256 as f64) / ASPECT_RATIO) as u64;
 
     // World
 
@@ -28,7 +28,7 @@ fn main() {
     // Camera
 
     let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
+    let viewport_width = ASPECT_RATIO * viewport_height;
     let focal_length = 1.0;
 
     // Render
@@ -43,16 +43,15 @@ fn main() {
 
     // Render
 
-    print!("P3\n{} {}\n255\n", image_width as i32, image_height as i32);
+    print!("P3\r{} {}\r255\r", IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    let mut j = image_height - 1;
-    while j >= 0 {
+    for j in (0..IMAGE_HEIGHT).rev() {
         eprintln!("Scanlines remaining: {}", j);
-        for i in 0..image_width {
-            let u = i as f64 / image_width as f64;
+        for i in 0..IMAGE_WIDTH {
+            let u = (i as f64) / (IMAGE_WIDTH - 1) as f64;
             // TODO
             // move v to outer loop scope and check performance
-            let v = j as f64 / image_height as f64;
+            let v = (j as f64) / (IMAGE_HEIGHT - 1) as f64;
 
             let dir = lower_left_corner
                 .add(&horizontal.multiply(u))
@@ -64,12 +63,11 @@ fn main() {
 
             vec3::print_color(&color)
         }
-        j -= 1;
     }
 }
 
 fn ray_color(r: &Ray, world: &HittableList) -> vec3::Color {
-    match world.hit(r, 0.001, f64::INFINITY) {
+    match world.hit(r, 0.0, f64::INFINITY) {
         Some(rec) => rec.normal.add(&Color::new(1.0, 1.0, 1.0)).div(2.0),
         None => {
             let unit_dir = r.dir.into_unit_vec();
@@ -80,3 +78,29 @@ fn ray_color(r: &Ray, world: &HittableList) -> vec3::Color {
         }
     }
 }
+
+// fn ray_color(r: &Ray, world: &HittableList) -> vec3::Color {
+//     let t = hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, r);
+//     if t > 0.0 {
+//         let n = (r.at(t).sub(&Vec3::new(0.0, 0.0, -1.0))).into_unit_vec();
+//         return Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0).multiply(0.5);
+//     }
+
+//     let unit_direction = r.dir.into_unit_vec();
+//     let t = 0.5 * (unit_direction.y() + 1.0);
+//     Color::new(1.0, 1.0, 1.0).multiply(1.0 - t).add(&Color::new(0.5, 0.7, 1.0).multiply(t))
+// }
+
+// fn hit_sphere(center: Point3, radius: f64, r: &Ray) -> f64 {
+//     let oc = r.orig.sub(&center);
+//     let a = r.dir.dot(r.dir);
+//     let b = 2.0 * oc.dot(r.dir);
+//     let c = oc.dot(&oc) - radius * radius;
+//     let discriminant = b * b - 4.0 * a * c;
+
+//     if discriminant < 0.0 {
+//         -1.0
+//     } else {
+//         (-b - discriminant.sqrt()) / (2.0 * a)
+//     }
+// }

@@ -61,7 +61,7 @@ impl Vec3 {
     }
 
     fn len(&self) -> f64 {
-        f64::sqrt(self.length_squared())
+        self.dot(self).sqrt()
     }
 }
 
@@ -75,8 +75,8 @@ pub type Point3 = Vec3;
 pub type Color = Vec3;
 
 pub fn print_color(color: &Color) {
-    let ir = (255.999 * color.x()) as i32;
-    let ig = (255.999 * color.y()) as i32;
-    let ib = (255.999 * color.z()) as i32;
+    let ir = (255.999 * color.x()) as u64;
+    let ig = (255.999 * color.y()) as u64;
+    let ib = (255.999 * color.z()) as u64;
     print!("{} {} {}\n", ir, ig, ib)
 }

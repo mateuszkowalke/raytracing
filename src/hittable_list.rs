@@ -1,5 +1,3 @@
-use crate::vec3::{Vec3, Point3};
-
 use super::hittable::{HitRecord, Hittable};
 use super::ray::Ray;
 use std::vec::Vec;

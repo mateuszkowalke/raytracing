@@ -1,6 +1,6 @@
 use super::hittable::{HitRecord, Hittable};
 use super::ray::Ray;
-use super::vec3::Point3;
+use super::vec3::{Point3, Vec3};
 
 #[derive(Debug)]
 pub struct Sphere {
@@ -27,22 +27,21 @@ impl Hittable for Sphere {
             return None;
         }
 
-        let sqrtd = f64::sqrt(d);
-        let mut nearest_root = (-b - sqrtd) / 2.0 * a;
+        let mut nearest_root = (-b - d.sqrt()) / (2.0 * a);
         if nearest_root < t_min || nearest_root > t_max {
-            nearest_root = (-b + sqrtd) / 2.0 * a;
+            nearest_root = (-b + d.sqrt()) / (2.0 * a);
             if nearest_root < t_min || nearest_root > t_max {
                 return None;
             }
         }
 
-        let outward_normal = (ray.at(nearest_root).sub(&self.center)).div(self.radius);
         let mut rec = HitRecord {
             t: nearest_root,
             p: ray.at(nearest_root),
-            normal: ray.at(nearest_root).sub(&self.center).div(self.radius),
+            normal: Vec3::new(0.0, 0.0, 0.0),
             front_face: false,
         };
+        let outward_normal = (rec.p.sub(&self.center)).div(self.radius);
         rec.set_face_normal(ray, outward_normal);
         Some(rec)
     }
