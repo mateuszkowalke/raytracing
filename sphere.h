@@ -3,6 +3,7 @@
 
 #include "hittable.h"
 #include "vec3.h"
+#include <memory>
 
 class sphere : public hittable {
 public:
@@ -15,6 +16,7 @@ public:
 public:
   point3 center;
   double radius;
+  shared_ptr<material> mat_ptr;
 };
 
 bool sphere::hit(const ray &r, double t_min, double t_max,
@@ -41,6 +43,7 @@ bool sphere::hit(const ray &r, double t_min, double t_max,
   rec.p = r.at(rec.t);
   vec3 outward_normal = (rec.p - center) / radius;
   rec.set_face_normal(r, outward_normal);
+  rec.mat_ptr = mat_ptr;
 
   return true;
 }
